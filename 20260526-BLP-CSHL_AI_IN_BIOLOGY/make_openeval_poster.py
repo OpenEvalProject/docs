@@ -32,6 +32,7 @@ DEFAULT_BIB = ROOT / "tmp_final.bib"
 DEFAULT_OUT = PROJECT / "out"
 REFERENCE_SCRIPT = ROOT / "poster_reference_backdrop" / "make_reference_backdrop.py"
 DEFAULT_QR_IMAGE = PROJECT / "assets" / "chatgpt_share_qr.pdf"
+DEFAULT_POSTER_PDF_QR_IMAGE = PROJECT / "assets" / "openeval_poster_pdf_qr.pdf"
 
 
 @dataclass(frozen=True)
@@ -104,6 +105,8 @@ def write_foreground(
     height_pt: float,
     qr_size_in: float,
     qr_image: Path | None,
+    poster_pdf_qr_size_in: float,
+    poster_pdf_qr_image: Path | None,
     stats: PosterStats,
 ) -> None:
     qr_size_pt = qr_size_in * 72.0
@@ -153,6 +156,47 @@ def write_foreground(
             r"\endgroup",
         ]
     )
+    write_poster_pdf_qr(
+        lines,
+        qr_size_in=poster_pdf_qr_size_in,
+        qr_image=poster_pdf_qr_image,
+    )
+
+
+def write_poster_pdf_qr(
+    lines: list[str],
+    *,
+    qr_size_in: float,
+    qr_image: Path | None,
+) -> None:
+    if qr_image is None:
+        return
+
+    qr_size_pt = qr_size_in * 72.0
+    box_x = 0.55 * 72.0
+    box_y = 0.55 * 72.0
+    pad_pt = 14.0
+    box_w = qr_size_pt + 252.0
+    box_h = qr_size_pt + 2 * pad_pt
+    qr_x = box_x + pad_pt
+    qr_y = box_y + pad_pt
+    text_x = qr_x + qr_size_pt + 20.0
+    title_y = box_y + box_h - 62.0
+    body_y = title_y - 26.0
+
+    lines.extend(
+        [
+            r"\begingroup",
+            rf"\put({box_x:.2f},{box_y:.2f}){{\color{{white}}\rule{{{box_w:.2f}pt}}{{{box_h:.2f}pt}}}}",
+            r"\linethickness{1.2pt}",
+            rf"\put({box_x:.2f},{box_y:.2f}){{\color{{black}}\framebox({box_w:.2f},{box_h:.2f}){{}}}}",
+            rf"\put({qr_x:.2f},{qr_y:.2f}){{\includegraphics[width={qr_size_pt:.2f}pt,height={qr_size_pt:.2f}pt,keepaspectratio]{{{tex_path(qr_image)}}}}}",
+            r"\color{black}\sffamily",
+            rf"\put({text_x:.2f},{title_y:.2f}){{\makebox[0pt][l]{{\bfseries\fontsize{{18pt}}{{22pt}}\selectfont View poster PDF}}}}",
+            rf"\put({text_x:.2f},{body_y:.2f}){{\makebox[0pt][l]{{\fontsize{{12pt}}{{15pt}}\selectfont Zoom in on references}}}}",
+            r"\endgroup",
+        ]
+    )
 
 
 def callout_tikz(width_pt: float, height_pt: float, stats: PosterStats) -> str:
@@ -199,6 +243,8 @@ def write_tex(
     reference_gray: float,
     qr_size_in: float,
     qr_image: Path | None,
+    poster_pdf_qr_size_in: float,
+    poster_pdf_qr_image: Path | None,
     stats: PosterStats,
 ) -> None:
     width_pt = width_in * 72.0
@@ -241,6 +287,8 @@ def write_tex(
         height_pt=height_pt,
         qr_size_in=qr_size_in,
         qr_image=qr_image,
+        poster_pdf_qr_size_in=poster_pdf_qr_size_in,
+        poster_pdf_qr_image=poster_pdf_qr_image,
         stats=stats,
     )
 
@@ -277,6 +325,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--reference-gray", type=float, default=0.62)
     parser.add_argument("--qr-size-in", type=float, default=15.0)
     parser.add_argument("--qr-image", type=Path, default=DEFAULT_QR_IMAGE)
+    parser.add_argument("--poster-pdf-qr-size-in", type=float, default=2.25)
+    parser.add_argument(
+        "--poster-pdf-qr-image", type=Path, default=DEFAULT_POSTER_PDF_QR_IMAGE
+    )
     parser.add_argument("--total-manuscripts", type=int, default=16087)
     parser.add_argument("--post-publication-ai-reviews", type=int, default=13600)
     parser.add_argument("--comparison-manuscripts", type=int, default=2487)
@@ -292,6 +344,11 @@ def main() -> int:
     qr_image = args.qr_image.resolve() if args.qr_image else None
     if qr_image is not None and not qr_image.exists():
         raise SystemExit(f"QR image not found: {qr_image}")
+    poster_pdf_qr_image = (
+        args.poster_pdf_qr_image.resolve() if args.poster_pdf_qr_image else None
+    )
+    if poster_pdf_qr_image is not None and not poster_pdf_qr_image.exists():
+        raise SystemExit(f"Poster PDF QR image not found: {poster_pdf_qr_image}")
 
     stats = PosterStats(
         total_manuscripts=args.total_manuscripts,
@@ -315,6 +372,8 @@ def main() -> int:
         reference_gray=args.reference_gray,
         qr_size_in=args.qr_size_in,
         qr_image=qr_image,
+        poster_pdf_qr_size_in=args.poster_pdf_qr_size_in,
+        poster_pdf_qr_image=poster_pdf_qr_image,
         stats=stats,
     )
 

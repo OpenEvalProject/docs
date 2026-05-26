@@ -2,11 +2,13 @@
 
 LaTeX source for a 36 in x 48 in portrait poster.
 
-The reference field is generated as TeX text, not as a raster image. The QR code
-is generated with `qrencode` and included as a vector PDF. The callout counts use
-the manuscript-level values from the paper: 16,087 total manuscripts, 13,600
-OpenEval-only post-publication AI reviews, and 2,487 manuscripts with AI-peer
-review comparisons.
+The reference field is generated as TeX text, not as a raster image. The main QR
+code links to the ChatGPT share page. The small bottom-left QR code links to the
+published poster PDF so readers can zoom into the references on a phone. Both QR
+codes are generated with `qrencode` and included as vector PDFs. The callout
+counts use the manuscript-level values from the paper: 16,087 total manuscripts,
+13,600 OpenEval-only post-publication AI reviews, and 2,487 manuscripts with
+AI-peer review comparisons.
 
 This folder is named for the intended documentation archive convention:
 
@@ -42,6 +44,9 @@ python3 make_openeval_poster.py --reference-gray 0.58
 
 # Larger QR square
 python3 make_openeval_poster.py --qr-size-in 17
+
+# Larger poster PDF QR square
+python3 make_openeval_poster.py --poster-pdf-qr-size-in 2.75
 
 # Wider or tighter reference columns
 python3 make_openeval_poster.py --columns 12 --gap-in 0.04
