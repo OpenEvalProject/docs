@@ -176,13 +176,12 @@ def write_poster_pdf_qr(
     box_x = 0.55 * 72.0
     box_y = 0.55 * 72.0
     pad_pt = 14.0
-    box_w = qr_size_pt + 252.0
-    box_h = qr_size_pt + 2 * pad_pt
-    qr_x = box_x + pad_pt
+    box_w = qr_size_pt + 44.0
+    box_h = qr_size_pt + 80.0
+    qr_x = box_x + (box_w - qr_size_pt) / 2.0
     qr_y = box_y + pad_pt
-    text_x = qr_x + qr_size_pt + 20.0
-    title_y = box_y + box_h - 62.0
-    body_y = title_y - 26.0
+    title_y = box_y + box_h - 31.0
+    body_y = title_y - 20.0
 
     lines.extend(
         [
@@ -192,8 +191,8 @@ def write_poster_pdf_qr(
             rf"\put({box_x:.2f},{box_y:.2f}){{\color{{black}}\framebox({box_w:.2f},{box_h:.2f}){{}}}}",
             rf"\put({qr_x:.2f},{qr_y:.2f}){{\includegraphics[width={qr_size_pt:.2f}pt,height={qr_size_pt:.2f}pt,keepaspectratio]{{{tex_path(qr_image)}}}}}",
             r"\color{black}\sffamily",
-            rf"\put({text_x:.2f},{title_y:.2f}){{\makebox[0pt][l]{{\bfseries\fontsize{{18pt}}{{22pt}}\selectfont View poster PDF}}}}",
-            rf"\put({text_x:.2f},{body_y:.2f}){{\makebox[0pt][l]{{\fontsize{{12pt}}{{15pt}}\selectfont Zoom in on references}}}}",
+            rf"\put({box_x:.2f},{title_y:.2f}){{\makebox({box_w:.2f},0)[c]{{\bfseries\fontsize{{16pt}}{{19pt}}\selectfont View poster PDF}}}}",
+            rf"\put({box_x:.2f},{body_y:.2f}){{\makebox({box_w:.2f},0)[c]{{\fontsize{{11pt}}{{14pt}}\selectfont (Zoom in to references)}}}}",
             r"\endgroup",
         ]
     )
